@@ -1,22 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Go Learning Chapters</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Mongo API - Chapters</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
         h1 { color: #333; }
         ul { list-style-type: none; padding: 0; }
         li { margin: 10px 0; }
-        a { text-decoration: none; color: #007bff; }
+        a { color: #0066cc; text-decoration: none; }
         a:hover { text-decoration: underline; }
+        .navbar { background: #333; padding: 10px; }
+        .navbar a { color: white; margin: 0 15px; text-decoration: none; }
+        .navbar a:hover { color: #ddd; }
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: #333;
+            min-width: 160px;
+            z-index: 1;
+        }
+        .dropdown-content a {
+            display: block;
+            padding: 10px;
+        }
+        .dropdown:hover .dropdown-content { display: block; }
     </style>
 </head>
 <body>
-    <h1>Go Learning Chapters</h1>
+    <div class="navbar">
+        <a href="/">Home</a>
+        <div class="dropdown">
+            <a href="#">Courses</a>
+            <div class="dropdown-content">
+                <a href="/api/courses" onclick="makeRequest('GET', '/api/courses')">GET All Courses</a>
+                <a href="#" onclick="makeRequest('GET', '/api/course/1')">GET Course ID 1</a>
+                <a href="#" onclick="makeRequest('POST', '/api/course', {courseid: '3', coursename: 'Python Bootcamp', price: 149, author: {fullname: 'John Smith', website: 'FruitLearnOnline.in'}})">POST New Course</a>
+                <a href="#" onclick="makeRequest('PUT', '/api/course/1', {courseid: '1', coursename: 'Go API Updated', price: 349, author: {fullname: 'Hitesh Choudhary', website: 'FruitLearnOnline.in'}})">PUT Update Course ID 1</a>
+                <a href="#" onclick="makeRequest('DELETE', '/api/course/1')">DELETE Course ID 1</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <a href="#">Movies</a>
+            <div class="dropdown-content">
+                <a href="/api/movies" onclick="makeRequest('GET', '/api/movies')">GET All Movies</a>
+                <a href="#" onclick="makeRequest('GET', '/api/movie/1')">GET Movie ID 1</a>
+                <a href="#" onclick="makeRequest('POST', '/api/movie', {movie: 'The Matrix', watched: false})">POST New Movie</a>
+                <a href="#" onclick="makeRequest('PUT', '/api/movie/1', {movie: 'Avatar Updated', watched: true})">PUT Update Movie ID 1</a>
+                <a href="#" onclick="makeRequest('DELETE', '/api/movie/1')">DELETE Movie ID 1</a>
+                <a href="/api/my-movies" onclick="makeRequest('GET', '/api/my-movies')">GET My Movies</a>
+                <a href="#" onclick="makeRequest('PUT', '/api/movie/1/watched')">PUT Mark Movie ID 1 Watched</a>
+                <a href="#" onclick="makeRequest('DELETE', '/api/deleteallmovie')">DELETE All Movies</a>
+            </div>
+        </div>
+    </div>
+    <h1>Go Mongo API Chapters</h1>
     <ul>
         {{range .}}
-        <li><a href="/chapter/{{.ID}}">{{.Title}}</a>: {{.Description}}</li>
+        <li><a href="/chapter/{{.ID}}">Chapter {{.ID}}: {{.Title}} - {{.Description}}</a></li>
         {{end}}
     </ul>
+    <script>
+        function makeRequest(method, url, data = null) {
+            fetch('http://localhost:4000' + url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: data ? JSON.stringify(data) : null
+            })
+            .then(response => response.json())
+            .then(data => alert(JSON.stringify(data, null, 2)))
+            .catch(error => alert('Error: ' + error));
+        }
+    </script>
 </body>
 </html>

@@ -4,84 +4,85 @@ import "fmt"
 
 // The main function is like the start button for our program!
 func main() {
-    // Say hello to our function adventure
-    fmt.Println("Welcome to our fruit shop function adventure!")
+	// Say hello to our function adventure
+	fmt.Println("Welcome to our fruit shop function adventure!")
 
-    // Call a simple helper to say hi
-    sayHello()
-    // This shows: Hello from the fruit shop!
+	// Call a simple helper to say hi
+	sayHello()
+	// This shows: Hello from the fruit shop!
 
-    // Greet a user with their name
-    greetUser("Justin")
-    // This shows: Welcome, Justin, to the fruit shop!
+	// Greet a user with their name
+	greetUser("Justin")
+	// This shows: Welcome, Justin, to the fruit shop!
 
-    // Calculate the price of apples
-    applePrice := getFruitPrice("Apple", 2)
-    fmt.Println("Price for 2 apples:", applePrice, "coins")
-    // This shows: Price for 2 apples: 4 coins
+	// Calculate the price of apples
+	applePrice := getFruitPrice(2)
+	fmt.Println("Price for 2 apples:", applePrice, "coins")
+	// This shows: Price for 2 apples: 4 coins
 
-    // Check if we have enough bananas
-    haveBananas := checkStock("Banana", 5)
-    fmt.Println("Enough bananas for 5?", haveBananas)
-    // This shows: Enough bananas for 5? true
+	// Check if we have enough bananas
+	haveBananas := checkStock("Banana", 5)
+	fmt.Println("Enough bananas for 5?", haveBananas)
+	// This shows: Enough bananas for 5? true
 
-    // Get total and discount for a fruit order
-    total, discount := calculateOrder("Mango", 10)
-    fmt.Println("Total for 10 mangos:", total, "coins, Discount:", discount, "coins")
-    // This shows: Total for 10 mangos: 30 coins, Discount: 3 coins
+	// Get total and discount for a fruit order
+	total, discount := calculateOrder(10)
+	fmt.Println("Total for 10 mangos:", total, "coins, Discount:", discount, "coins")
+	// This shows: Total for 10 mangos: 30 coins, Discount: 3 coins
 
-    // Buy lots of fruits with a flexible helper
-    totalCost := buyFruits("Apple", "Banana", "Mango")
-    fmt.Println("Total cost for fruits:", totalCost, "coins")
-    // This shows: Total cost for fruits: 12 coins
+	// Buy lots of fruits with a flexible helper
+	totalCost := buyFruits("Apple", "Banana", "Mango")
+	fmt.Println("Total cost for fruits:", totalCost, "coins")
+	// This shows: Total cost for fruits: 12 coins
 
-    // Use a quick helper to count fruits
-    countFruits := func() int {
-        return 3 // Pretend we have 3 fruits
-    }
-    fmt.Println("Number of fruit types:", countFruits())
-    // This shows: Number of fruit types: 3
+	// Use a quick helper to count fruits
+	countFruits := func() int {
+		return 3 // Pretend we have 3 fruits
+	}
+	fmt.Println("Number of fruit types:", countFruits())
+	// This shows: Number of fruit types: 3
 }
 
 // This helper says hello, like waving at everyone
 func sayHello() {
-    fmt.Println("Hello from the fruit shop!")
+	fmt.Println("Hello from the fruit shop!")
 }
 
 // This helper greets a user, like saying hi to a friend
 func greetUser(name string) {
-    fmt.Println("Welcome,", name, ", to the fruit shop!")
+	fmt.Println("Welcome,", name, ", to the fruit shop!")
 }
 
 // This helper gets the price for a fruit, like checking a price tag
-func getFruitPrice(fruit string, quantity int) int {
-    pricePerUnit := 2 // Each fruit costs 2 coins
-    return pricePerUnit * quantity
+func getFruitPrice(quantity int) int {
+	pricePerUnit := 2 // Each fruit costs 2 coins
+	return pricePerUnit * quantity
 }
 
 // This helper checks if we have enough fruit, like looking in the shop
 func checkStock(fruit string, needed int) bool {
-    stock := map[string]int{"Apple": 10, "Banana": 8, "Mango": 5}
-    return stock[fruit] >= needed
+	stock := map[string]int{"Apple": 10, "Banana": 8, "Mango": 5}
+	return stock[fruit] >= needed
 }
 
 // This helper calculates total and discount, like adding up a bill
-func calculateOrder(fruit string, quantity int) (int, int) {
-    price := getFruitPrice(fruit, quantity) // Use another helper
-    discount := 0
-    if quantity > 5 {
-        discount = price / 10 // 10% off for big orders
-    }
-    return price, discount
+func calculateOrder(quantity int) (int, int) {
+	price := getFruitPrice(quantity) // Use another helper
+	discount := 0
+	if quantity > 5 {
+		discount = price / 10 // 10% off for big orders
+	}
+	return price, discount
 }
 
 // This helper adds up costs for many fruits, like a big shopping list
 func buyFruits(fruits ...string) int {
-    total := 0
-    for _, fruit := range fruits {
-        total += getFruitPrice(fruit, 2) // Buy 2 of each fruit
-    }
-    return total
+	total := 0
+	for _, fruit := range fruits {
+		var _ string = fruit
+		total += getFruitPrice(2) // Buy 2 of each fruit
+	}
+	return total
 }
 
 // Explanation comments for a 5-year-old:

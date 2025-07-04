@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/hiteshchoudhary/mongodb/controller"
+	"github.com/hiteshchoudhary/mongodb/controller" // Ensure this path is correct
 )
 
 func Router() *mux.Router {

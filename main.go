@@ -932,26 +932,28 @@ func chapter21Server(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "This is a GET request response!")
 	})
 	mux.HandleFunc("/post", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost {
+		switch r.Method {
+		case http.MethodPost:
 			var data map[string]interface{}
 			if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 				http.Error(w, "Error decoding JSON", http.StatusBadRequest)
 				return
 			}
 			json.NewEncoder(w).Encode(data)
-		} else {
+		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
 	mux.HandleFunc("/postform", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost {
+		switch r.Method {
+		case http.MethodPost:
 			r.ParseForm()
 			data := make(map[string]string)
 			for key, values := range r.Form {
 				data[key] = values[0]
 			}
 			json.NewEncoder(w).Encode(data)
-		} else {
+		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
@@ -1032,7 +1034,8 @@ func chapter24Server(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Course not found", http.StatusNotFound)
 	})
 	mux.HandleFunc("/course", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost {
+		switch r.Method {
+		case http.MethodPost:
 			var newCourse Course
 			if err := json.NewDecoder(r.Body).Decode(&newCourse); err != nil {
 				http.Error(w, "Error decoding JSON", http.StatusBadRequest)
@@ -1040,7 +1043,7 @@ func chapter24Server(w http.ResponseWriter, r *http.Request) {
 			}
 			courses = append(courses, newCourse)
 			json.NewEncoder(w).Encode(newCourse)
-		} else if r.Method == http.MethodPut {
+		case http.MethodPut:
 			parts := strings.Split(r.URL.Path, "/")
 			if len(parts) < 3 {
 				http.Error(w, "Course ID not specified", http.StatusBadRequest)
@@ -1060,7 +1063,7 @@ func chapter24Server(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 			http.Error(w, "Course not found", http.StatusNotFound)
-		} else {
+		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
