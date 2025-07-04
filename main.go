@@ -74,6 +74,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	cursor, err := chapterCollection.Find(ctx, bson.M{})
 	if err != nil {
+		log.Println("Error fetching chapters:", err)
 		http.Error(w, "Failed to fetch chapters: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -81,12 +82,14 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 	var chapters []Chapter
 	if err := cursor.All(ctx, &chapters); err != nil {
+		log.Println("Error decoding chapters:", err)
 		http.Error(w, "Failed to decode chapters: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	tmpl, err := template.ParseFiles("web/templates/index.html")
 	if err != nil {
+		log.Println("Error loading index template:", err)
 		http.Error(w, "Failed to load template: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -96,6 +99,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 func coursesHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("web/templates/courses.html")
 	if err != nil {
+		log.Println("Error loading courses template:", err)
 		http.Error(w, "Failed to load courses template: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -105,6 +109,7 @@ func coursesHandler(w http.ResponseWriter, r *http.Request) {
 func moviesHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("web/templates/movies.html")
 	if err != nil {
+		log.Println("Error loading movies template:", err)
 		http.Error(w, "Failed to load movies template: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -120,12 +125,14 @@ func chapterHandler(w http.ResponseWriter, r *http.Request) {
 	var chapter Chapter
 	err := chapterCollection.FindOne(ctx, bson.M{"_id": id}).Decode(&chapter)
 	if err != nil {
+		log.Println("Error fetching chapter:", err)
 		http.Error(w, "Failed to fetch chapter: "+err.Error(), http.StatusNotFound)
 		return
 	}
 
 	tmpl, err := template.ParseFiles("web/templates/chapter.html")
 	if err != nil {
+		log.Println("Error loading chapter template:", err)
 		http.Error(w, "Failed to load template: "+err.Error(), http.StatusInternalServerError)
 		return
 	}

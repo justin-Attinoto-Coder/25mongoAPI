@@ -108,13 +108,23 @@ func UpdateCourse(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing required fields: coursename or author.fullname", http.StatusBadRequest)
 		return
 	}
-	course.ID = primitive.NewObjectID()
 	course.CourseId = id
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	_, err := CourseCollection.ReplaceOne(ctx, bson.M{"courseid": id}, course)
+	var existingCourse Course
+	err := CourseCollection.FindOne(ctx, bson.M{"courseid": id}).Decode(&existingCourse)
+	if err != nil {
+		http.Error(w, "Course not found: "+err.Error(), http.StatusNotFound)
+		return
+	}
+	course.ID = existingCourse.ID // Preserve existing _id
+	result, err := CourseCollection.ReplaceOne(ctx, bson.M{"courseid": id}, course)
 	if err != nil {
 		http.Error(w, "Failed to update course: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if result.MatchedCount == 0 {
+		http.Error(w, "Course not found", http.StatusNotFound)
 		return
 	}
 	json.NewEncoder(w).Encode(map[string]interface{}{
