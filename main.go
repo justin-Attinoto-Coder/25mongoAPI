@@ -74,14 +74,14 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	cursor, err := chapterCollection.Find(ctx, bson.M{})
 	if err != nil {
-		http.Error(w, "Failed to fetch chapters", http.StatusInternalServerError)
+		http.Error(w, "Failed to fetch chapters: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer cursor.Close(ctx)
 
 	var chapters []Chapter
 	if err := cursor.All(ctx, &chapters); err != nil {
-		http.Error(w, "Failed to decode chapters", http.StatusInternalServerError)
+		http.Error(w, "Failed to decode chapters: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -120,7 +120,7 @@ func chapterHandler(w http.ResponseWriter, r *http.Request) {
 	var chapter Chapter
 	err := chapterCollection.FindOne(ctx, bson.M{"_id": id}).Decode(&chapter)
 	if err != nil {
-		http.Error(w, "Failed to fetch chapter", http.StatusNotFound)
+		http.Error(w, "Failed to fetch chapter: "+err.Error(), http.StatusNotFound)
 		return
 	}
 
@@ -130,7 +130,6 @@ func chapterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Placeholder for chapter output (simplified to avoid repetition)
 	data := struct {
 		ChapterID   string
 		Title       string
