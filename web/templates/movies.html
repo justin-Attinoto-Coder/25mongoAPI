@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Mongo API - Movies Inventory</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        h1 { color: #333; }
+        a { color: #0066cc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .navbar { background: #333; padding: 10px; }
+        .navbar a { color: white; margin: 0 15px; text-decoration: none; }
+        .navbar a:hover { color: #ddd; }
+        #movies-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        #movies-table th, #movies-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        #movies-table th { background: #f2f2f2; }
+        #movies-table button { padding: 5px 10px; margin: 0 5px; }
+        #movie-form { margin-top: 20px; }
+        #movie-form input { margin: 5px; padding: 5px; }
+        #movie-form button { padding: 5px 10px; }
+    </style>
+</head>
+<body onload="fetchMovies()">
+    <div class="navbar">
+        <a href="/">Home</a>
+        <a href="/courses">Courses</a>
+        <a href="/movies">Movies</a>
+    </div>
+    <h1>Movies Inventory</h1>
+    <p>Total Movies: <span id="total-movies">0</span></p>
+    <table id="movies-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Movie Name</th>
+                <th>Watched</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="movies-table-body"></tbody>
+    </table>
+    <div id="movie-form">
+        <h3>Add New Movie</h3>
+        <input type="text" id="movie-name" placeholder="Movie Name">
+        <input type="checkbox" id="movie-watched"> Watched
+        <button onclick="addMovie()">Add Movie</button>
+    </div>
+    <script>
+        function fetchMovies() {
+            fetch('http://localhost:4000/api/movies', {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('movies-table-body');
+                const totalMovies = document.getElementById('total-movies');
+                tableBody.innerHTML = '';
+                const movies = data.data || [];
+                totalMovies.textContent = movies.length;
+                movies.forEach(movie => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${movie._id}</td>
+                        <td>${movie.movie}</td>
+                        <td>${movie.watched}</td>
+                        <td>
+                            <button onclick="editMovie('${movie._id}', '${movie.movie.replace(/'/g, "\\'")}', ${movie.watched})">Edit</button>
+                            <button onclick="deleteMovie('${movie._id}')">Delete</button>
+                            <button onclick="markAsWatched('${movie._id}')">Mark as Watched</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => alert('Error fetching movies: ' + error));
+        }
+
+        function editMovie(id, name, watched) {
+            document.getElementById('movie-name').value = name;
+            document.getElementById('movie-watched').checked = watched;
+            const addButton = document.getElementById('movie-form').querySelector('button');
+            addButton.textContent = 'Update Movie';
+            addButton.onclick = () => updateMovie(id);
+        }
+
+        function updateMovie(id) {
+            const movie = {
+                _id: id,
+                movie: document.getElementById('movie-name').value,
+                watched: document.getElementById('movie-watched').checked
+            };
+            fetch('http://localhost:4000/api/movie/' + id, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify(movie)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(JSON.stringify(data, null, 2));
+                resetForm();
+                fetchMovies();
+            })
+            .catch(error => alert('Error updating movie: ' + error));
+        }
+
+        function deleteMovie(id) {
+            if (confirm('Are you sure you want to delete this movie?')) {
+                fetch('http://localhost:4000/api/movie/' + id, {
+                    method: 'DELETE',
+                    headers: { 'Accept': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(JSON.stringify(data, null, 2));
+                    fetchMovies();
+                })
+                .catch(error => alert('Error deleting movie: ' + error));
+            }
+        }
+
+        function markAsWatched(id) {
+            fetch('http://localhost:4000/api/movie/' + id + '/watched', {
+                method: 'PUT',
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(JSON.stringify(data, null, 2));
+                fetchMovies();
+            })
+            .catch(error => alert('Error marking movie as watched: ' + error));
+        }
+
+        function addMovie() {
+            const movie = {
+                movie: document.getElementById('movie-name').value,
+                watched: document.getElementById('movie-watched').checked
+            };
+            fetch('http://localhost:4000/api/movie', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify(movie)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(JSON.stringify(data, null, 2));
+                resetForm();
+                fetchMovies();
+            })
+            .catch(error => alert('Error adding movie: ' + error));
+        }
+
+        function resetForm() {
+            document.getElementById('movie-name').value = '';
+            document.getElementById('movie-watched').checked = false;
+            const addButton = document.getElementById('movie-form').querySelector('button');
+            addButton.textContent = 'Add Movie';
+            addButton.onclick = addMovie;
+        }
+    </script>
+</body>
+</html>
