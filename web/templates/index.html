@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Go Learning Chapters</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h1 { color: #333; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin: 10px 0; }
+        a { text-decoration: none; color: #007bff; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>Go Learning Chapters</h1>
+    <ul>
+        {{range .}}
+        <li><a href="/chapter/{{.ID}}">{{.Title}}</a>: {{.Description}}</li>
+        {{end}}
+    </ul>
+</body>
+</html>
