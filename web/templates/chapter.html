@@ -3,21 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chapter {{.ChapterID}} - {{.Title}}</title>
+    <title>Go Mongo API - Chapter {{.ChapterID}}</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
         h1 { color: #333; }
-        p { margin: 10px 0; }
-        pre { background: #f4f4f4; padding: 10px; border-radius: 5px; white-space: pre-wrap; }
         a { color: #0066cc; text-decoration: none; }
         a:hover { text-decoration: underline; }
+        .navbar { background: #333; padding: 10px; }
+        .navbar a { color: white; margin: 0 15px; text-decoration: none; }
+        .navbar a:hover { color: #ddd; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 5px; }
+        #input-form { margin-top: 20px; }
+        #input-form input, #input-form textarea { margin: 5px; padding: 5px; width: 300px; }
+        #input-form button { padding: 5px 10px; }
     </style>
 </head>
 <body>
+    <div class="navbar">
+        <a href="/">Home</a>
+        <a href="/courses">Courses</a>
+        <a href="/movies">Movies</a>
+    </div>
     <h1>Chapter {{.ChapterID}}: {{.Title}}</h1>
     <p>{{.Description}}</p>
-    <h2>Output:</h2>
     <pre>{{.Output}}</pre>
-    <a href="/">Back to Chapters</a>
+    {{if eq .ChapterID "03"}}
+    <div id="input-form">
+        <h3>Enter Your Details</h3>
+        <form action="/chapter/03" method="POST">
+            <input type="text" name="name" placeholder="Enter your name" required><br>
+            <input type="number" name="age" placeholder="Enter your age" required><br>
+            <textarea name="bio" placeholder="Enter a short bio" required></textarea><br>
+            <input type="text" name="word" placeholder="Enter a favorite word" required><br>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    {{end}}
 </body>
 </html>

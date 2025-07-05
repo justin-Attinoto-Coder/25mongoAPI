@@ -112,7 +112,7 @@ func main() {
 	router.HandleFunc("/", homeHandler).Methods("GET")
 	router.HandleFunc("/courses", coursesHandler).Methods("GET")
 	router.HandleFunc("/movies", moviesHandler).Methods("GET")
-	router.HandleFunc("/chapter/{id}", chapterHandler).Methods("GET")
+	router.HandleFunc("/chapter/{id}", chapterHandler).Methods("GET", "POST")
 	router.HandleFunc("/chapter/19/server", chapter19Server).Methods("GET")
 	router.HandleFunc("/chapter/21/server", chapter21Server).Methods("GET")
 	router.HandleFunc("/chapter/23/server", chapter23Server).Methods("GET")
@@ -123,7 +123,7 @@ func main() {
 	router.HandleFunc("/api/course/{id}", controller.UpdateCourse).Methods("PUT")
 	router.HandleFunc("/api/course/{id}", controller.DeleteCourse).Methods("DELETE")
 	router.HandleFunc("/api/movies", controller.GetAllMovies).Methods("GET")
-	router.HandleFunc("/api/movie/{id}", controller.GetOneCourse).Methods("GET")
+	router.HandleFunc("/api/movie/{id}", controller.GetOneMovie).Methods("GET")
 	router.HandleFunc("/api/movie", controller.CreateMovie).Methods("POST")
 	router.HandleFunc("/api/movie/{id}", controller.UpdateMovie).Methods("PUT")
 	router.HandleFunc("/api/movie/{id}", controller.DeleteAMovie).Methods("DELETE")
@@ -204,63 +204,88 @@ func chapterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	output := ""
-	switch id {
-	case "01":
-		output = chapter01()
-	case "02":
-		output = chapter02()
-	case "03":
-		output = chapter03()
-	case "04":
-		output = chapter04()
-	case "05":
-		output = chapter05()
-	case "06":
-		output = chapter06()
-	case "07":
-		output = chapter07()
-	case "08":
-		output = chapter08()
-	case "09":
-		output = chapter09()
-	case "10":
-		output = chapter10()
-	case "11":
-		output = chapter11()
-	case "12":
-		output = chapter12()
-	case "13":
-		output = chapter13()
-	case "14":
-		output = chapter14()
-	case "15":
-		output = chapter15()
-	case "16":
-		output = chapter16()
-	case "17":
-		output = chapter17()
-	case "18":
-		output = chapter18()
-	case "19":
-		output = chapter19()
-	case "20":
-		output = chapter20()
-	case "21":
-		output = chapter21()
-	case "22":
-		output = chapter22()
-	case "23":
-		output = chapter23()
-	case "24":
-		output = chapter24()
-	case "26":
-		output = chapter26()
-	case "27":
-		output = chapter27()
-	case "28":
-		output = chapter28()
-	default:
-		output = "Chapter not implemented yet!"
+	if id == "03" && r.Method == "POST" {
+		if err := r.ParseForm(); err != nil {
+			log.Println("Error parsing form:", err)
+			http.Error(w, "Failed to parse form: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		name := r.FormValue("name")
+		ageStr := r.FormValue("age")
+		bio := r.FormValue("bio")
+		word := r.FormValue("word")
+
+		if name == "" || ageStr == "" || bio == "" || word == "" {
+			http.Error(w, "All fields are required", http.StatusBadRequest)
+			return
+		}
+
+		_, err := strconv.Atoi(ageStr)
+		if err != nil {
+			http.Error(w, "Age must be a number: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		output = chapter03(name, ageStr, bio, word)
+	} else {
+		switch id {
+		case "01":
+			output = chapter01()
+		case "02":
+			output = chapter02()
+		case "03":
+			output = chapter03("Justin", "41", "I love coding in Go!", "Go")
+		case "04":
+			output = chapter04()
+		case "05":
+			output = chapter05()
+		case "06":
+			output = chapter06()
+		case "07":
+			output = chapter07()
+		case "08":
+			output = chapter08()
+		case "09":
+			output = chapter09()
+		case "10":
+			output = chapter10()
+		case "11":
+			output = chapter11()
+		case "12":
+			output = chapter12()
+		case "13":
+			output = chapter13()
+		case "14":
+			output = chapter14()
+		case "15":
+			output = chapter15()
+		case "16":
+			output = chapter16()
+		case "17":
+			output = chapter17()
+		case "18":
+			output = chapter18()
+		case "19":
+			output = chapter19()
+		case "20":
+			output = chapter20()
+		case "21":
+			output = chapter21()
+		case "22":
+			output = chapter22()
+		case "23":
+			output = chapter23()
+		case "24":
+			output = chapter24()
+		case "26":
+			output = chapter26()
+		case "27":
+			output = chapter27()
+		case "28":
+			output = chapter28()
+		default:
+			output = "Chapter not implemented yet!"
+		}
 	}
 
 	data := struct {
@@ -309,12 +334,10 @@ func chapter02() string {
 	return output
 }
 
-func chapter03() string {
+func chapter03(name, ageInput, bio, word string) string {
 	output := "Welcome to user input\n"
-	output += "Enter your name: [Input not available in web mode]\n"
-	name := "Justin"
-	output += "Enter your age: [Input not available in web mode]\n"
-	ageInput := "41"
+	output += "Enter your name: " + name + "\n"
+	output += "Enter your age: " + ageInput + "\n"
 	inputs := []interface{}{name, ageInput}
 	for i, input := range inputs {
 		if value, ok := input.(string); ok {
@@ -323,14 +346,10 @@ func chapter03() string {
 			output += "Input " + strconv.Itoa(i+1) + " is not a string\n"
 		}
 	}
-	output += "Enter a short bio: [Input not available in web mode]\n"
-	bio := "I love coding in Go!"
-	output += "Your bio: " + bio + "\n"
+	output += "Enter a short bio: " + bio + "\n"
 	runeCount := len([]rune(bio))
 	output += "Your bio has " + strconv.Itoa(runeCount) + " runes\n"
-	output += "Enter a favorite word: [Input not available in web mode]\n"
-	word := "Go"
-	output += "Your favorite word: " + word + "\n"
+	output += "Enter a favorite word: " + word + "\n"
 	return output
 }
 
