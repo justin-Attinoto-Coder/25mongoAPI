@@ -227,6 +227,40 @@ func chapterHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		output = chapter03(name, ageStr, bio, word)
+	} else if id == "04" && r.Method == "POST" {
+		if err := r.ParseForm(); err != nil {
+			log.Println("Error parsing form:", err)
+			http.Error(w, "Failed to parse form: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		rating := r.FormValue("rating")
+		pizzas := r.FormValue("pizzas")
+		premium := r.FormValue("premium")
+
+		if rating == "" || pizzas == "" || premium == "" {
+			http.Error(w, "All fields are required", http.StatusBadRequest)
+			return
+		}
+
+		_, err := strconv.ParseFloat(rating, 64)
+		if err != nil {
+			http.Error(w, "Rating must be a number: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		_, err = strconv.Atoi(pizzas)
+		if err != nil {
+			http.Error(w, "Number of pizzas must be a number: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		_, err = strconv.ParseBool(premium)
+		if err != nil {
+			http.Error(w, "Premium status must be true or false: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		output = chapter04(rating, pizzas, premium)
 	} else {
 		switch id {
 		case "01":
@@ -236,7 +270,7 @@ func chapterHandler(w http.ResponseWriter, r *http.Request) {
 		case "03":
 			output = chapter03("Justin", "41", "I love coding in Go!", "Go")
 		case "04":
-			output = chapter04()
+			output = chapter04("4.5", "3", "true")
 		case "05":
 			output = chapter05()
 		case "06":
@@ -353,23 +387,21 @@ func chapter03(name, ageInput, bio, word string) string {
 	return output
 }
 
-func chapter04() string {
+func chapter04(rating, pizzas, premium string) string {
 	output := "Welcome to our pizza app\n"
 	output += "Please rate our pizza between 1 and 5\n"
-	output += "Enter rating: [Input not available in web mode]\n"
-	input := "4.5"
-	output += "Thanks for rating, " + input + "\n"
-	numRating, err := strconv.ParseFloat(input, 64)
+	output += "Enter rating: " + rating + "\n"
+	numRating, err := strconv.ParseFloat(rating, 64)
 	if err != nil {
 		output += "Error converting rating to float: " + fmt.Sprint(err) + "\n"
 		return output
 	}
+	output += "Thanks for rating, " + rating + "\n"
 	output += "Added 1 to your rating: " + fmt.Sprintf("%.1f", numRating+1) + "\n"
 	ratingStr := strconv.FormatFloat(numRating, 'f', 1, 64)
 	output += "Your rating as string: " + ratingStr + "\n"
-	output += "Enter number of pizzas ordered: [Input not available in web mode]\n"
-	pizzaInput := "3"
-	numPizzas, err := strconv.Atoi(pizzaInput)
+	output += "Enter number of pizzas ordered: " + pizzas + "\n"
+	numPizzas, err := strconv.Atoi(pizzas)
 	if err != nil {
 		output += "Error converting to integer: " + fmt.Sprint(err) + "\n"
 		return output
@@ -377,9 +409,8 @@ func chapter04() string {
 	output += "You ordered " + strconv.Itoa(numPizzas) + " pizzas\n"
 	pizzaCountStr := strconv.Itoa(numPizzas)
 	output += "Number of pizzas as string: " + pizzaCountStr + "\n"
-	output += "Are you a premium member? (true/false): [Input not available in web mode]\n"
-	premiumInput := "true"
-	isPremium, err := strconv.ParseBool(premiumInput)
+	output += "Are you a premium member? (true/false): " + premium + "\n"
+	isPremium, err := strconv.ParseBool(premium)
 	if err != nil {
 		output += "Error converting to boolean: " + fmt.Sprint(err) + "\n"
 		return output
@@ -1038,31 +1069,6 @@ func chapter23() string {
 	return output
 }
 
-func chapter23Server(w http.ResponseWriter, r *http.Request) {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "Welcome to the Fruit Shop!")
-	})
-	mux.HandleFunc("/fruits", func(w http.ResponseWriter, r *http.Request) {
-		fruits := []string{"Apple", "Banana", "Mango"}
-		json.NewEncoder(w).Encode(fruits)
-	})
-	mux.HandleFunc("/fruit/", func(w http.ResponseWriter, r *http.Request) {
-		parts := strings.Split(r.URL.Path, "/")
-		if len(parts) < 3 {
-			http.Error(w, "Fruit not specified", http.StatusBadRequest)
-			return
-		}
-		fruit := parts[2]
-		fmt.Fprintf(w, "You picked %s!", fruit)
-	})
-	go func() {
-		log.Println("Starting Chapter 23 server at http://localhost:8001")
-		log.Fatal(http.ListenAndServe(":8001", mux))
-	}()
-	fmt.Fprintln(w, "Chapter 23 server started at http://localhost:8001")
-}
-
 func chapter24() string {
 	output := "Welcome to our API toy shop!\n"
 	output += "\nVisit /chapter/24/server to start the API server on http://localhost:8002\n"
@@ -1438,42 +1444,6 @@ func fetchWebsite(urlStr string) {
 	} else {
 		fmt.Println("Content:\n", content)
 	}
-}
-
-func parseURL(urlStr string) {
-	result, err := url.Parse(urlStr)
-	if err != nil {
-		fmt.Println("Error parsing URL:", err)
-		return
-	}
-	fmt.Println("Scheme (like https):", result.Scheme)
-	fmt.Println("Host (like lco.dev):", result.Host)
-	fmt.Println("Path (like /learn):", result.Path)
-	fmt.Println("Port (like 3000):", result.Port())
-	fmt.Println("Raw Query (like coursename=reactjs):", result.RawQuery)
-	qparams := result.Query()
-	fmt.Printf("Query params are of type: %T\n", qparams)
-	fmt.Println("Course/Fruit param:", qparams.Get("coursename"), qparams.Get("fruit"))
-	fmt.Println("All query params:")
-	for key, values := range qparams {
-		for _, val := range values {
-			fmt.Printf("Param %s: %s\n", key, val)
-		}
-	}
-}
-
-func buildFruitShopURL(scheme, host, path string, queryParams map[string]string) string {
-	partsOfUrl := &url.URL{
-		Scheme: scheme,
-		Host:   host,
-		Path:   path,
-	}
-	q := url.Values{}
-	for key, value := range queryParams {
-		q.Add(key, value)
-	}
-	partsOfUrl.RawQuery = q.Encode()
-	return partsOfUrl.String()
 }
 
 func PerformGetRequest(myurl string) {
